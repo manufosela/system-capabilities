@@ -1,0 +1,35 @@
+# Requisitos mínimos de la aplicación
+# Algunos requisitos son exigentes para demostrar el modal de advertencia
+
+# Navegador
+browser:
+  cookieEnabled: true
+  onLine: true
+
+# Dispositivo - requisitos altos para probar el modal
+device:
+  minMemory: 16  # 16GB - probablemente falle en muchos sistemas (máx reportado es 8GB)
+  minCores: 4    # 4 núcleos mínimos
+
+# Pantalla
+screen:
+  minWidth: 1920   # Full HD mínimo
+  minHeight: 1080
+  minColorDepth: 24
+
+# Características esenciales
+features:
+  webGL: true           # WebGL requerido
+  localStorage: true    # LocalStorage requerido
+  canvas: true          # Canvas requerido
+  indexedDB: true       # IndexedDB requerido
+  serviceWorker: true   # Service Worker requerido - puede fallar en algunos navegadores
+
+# Almacenamiento
+storage:
+  localStorage: true
+  indexedDB: true
+
+# Nota: El requisito de minMemory: 16 siempre fallará porque navigator.deviceMemory
+# tiene un máximo de 8GB por razones de privacidad. Esto es perfecto para demostrar
+# el modal de advertencia.

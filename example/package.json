@@ -1,0 +1,11 @@
+{
+  "name": "system-capabilities-example",
+  "version": "1.0.0",
+  "description": "Ejemplo de uso de system-capabilities para validar requisitos mínimos",
+  "scripts": {
+    "start": "npx http-server . -p 8080 -o"
+  },
+  "dependencies": {
+    "system-capabilities": "file:.."
+  }
+}

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Capabilities - Ejemplo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+      border-bottom: 3px solid #4CAF50;
+      padding-bottom: 10px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .output {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 20px;
+      margin-top: 20px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .output h2 {
+      color: #555;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    pre {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 System Capabilities - Ejemplo de Uso</h1>
+
+    <div class="buttons">
+      <button id="btnDetect">Detectar Capacidades</button>
+      <button id="btnSummary">Ver Resumen</button>
+      <button id="btnCheck">Verificar Requisitos</button>
+      <button id="btnBrowser">Info Navegador</button>
+      <button id="btnDevice">Info Dispositivo</button>
+      <button id="btnScreen">Info Pantalla</button>
+      <button id="btnFeatures">Características</button>
+    </div>
+
+    <div id="output" class="output hidden">
+      <h2 id="outputTitle"></h2>
+      <pre id="outputContent"></pre>
+    </div>
+  </div>
+
+  <script type="module">
+    import SystemCapabilities from '../src/index.js';
+
+    const systemCaps = new SystemCapabilities();
+    const output = document.getElementById('output');
+    const outputTitle = document.getElementById('outputTitle');
+    const outputContent = document.getElementById('outputContent');
+
+    function showOutput(title, content) {
+      outputTitle.textContent = title;
+      outputContent.textContent = JSON.stringify(content, null, 2);
+      output.classList.remove('hidden');
+    }
+
+    // Detectar todas las capacidades
+    document.getElementById('btnDetect').addEventListener('click', () => {
+      const capabilities = systemCaps.getCapabilities();
+      showOutput('Todas las Capacidades del Sistema', capabilities);
+    });
+
+    // Ver resumen
+    document.getElementById('btnSummary').addEventListener('click', () => {
+      const summary = systemCaps.getSummary();
+      showOutput('Resumen de Capacidades', summary);
+    });
+
+    // Verificar requisitos
+    document.getElementById('btnCheck').addEventListener('click', async () => {
+      try {
+        const result = await systemCaps.checkRequirements('requirements.yaml');
+        showOutput('Resultado de Validación', result);
+      } catch (error) {
+        showOutput('Error', {
+          message: 'No se pudo cargar el archivo requirements.yaml',
+          error: error.message
+        });
+      }
+    });
+
+    // Info navegador
+    document.getElementById('btnBrowser').addEventListener('click', () => {
+      const browser = systemCaps.getCategory('browser');
+      showOutput('Información del Navegador', browser);
+    });
+
+    // Info dispositivo
+    document.getElementById('btnDevice').addEventListener('click', () => {
+      const device = systemCaps.getCategory('device');
+      showOutput('Información del Dispositivo', device);
+    });
+
+    // Info pantalla
+    document.getElementById('btnScreen').addEventListener('click', () => {
+      const screen = systemCaps.getCategory('screen');
+      showOutput('Información de Pantalla', screen);
+    });
+
+    // Características
+    document.getElementById('btnFeatures').addEventListener('click', () => {
+      const features = systemCaps.getCategory('features');
+      showOutput('Características Soportadas', features);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+{
+  "name": "system-capabilities",
+  "version": "1.0.0",
+  "description": "Detecta las capacidades del sistema del navegador y valida requisitos mínimos",
+  "main": "dist/system-capabilities.js",
+  "module": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "browser",
+    "capabilities",
+    "detection",
+    "system",
+    "hardware",
+    "features"
+  ],
+  "author": "manufosela",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/manufosela/system-capabilities.git"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "rollup": "^4.9.6"
+  }
+}
