@@ -1,5 +1,8 @@
 import yaml from 'js-yaml';
 
+// Verificación de entorno del navegador
+const isBrowser = typeof window !== 'undefined' && typeof fetch !== 'undefined';
+
 /**
  * Validador de requisitos mínimos del sistema
  */
@@ -8,14 +11,28 @@ class RequirementsValidator {
     this.capabilities = capabilities;
     this.requirements = null;
     this.failures = [];
+    this.isBrowser = isBrowser;
   }
 
   /**
    * Carga los requisitos desde un archivo YAML
+   * @param {string|Object} yamlPathOrObject - Ruta al archivo YAML o objeto con los requisitos
    */
-  async loadRequirements(yamlPath) {
+  async loadRequirements(yamlPathOrObject) {
     try {
-      const response = await fetch(yamlPath);
+      // Si se pasa directamente un objeto, usarlo
+      if (typeof yamlPathOrObject === 'object' && yamlPathOrObject !== null) {
+        this.requirements = yamlPathOrObject;
+        return this.requirements;
+      }
+
+      // Si estamos en SSR, no podemos hacer fetch
+      if (!this.isBrowser) {
+        throw new Error('No se puede cargar requisitos desde archivo en entorno SSR. Pasa un objeto directamente.');
+      }
+
+      // Cargar desde archivo YAML
+      const response = await fetch(yamlPathOrObject);
       const yamlText = await response.text();
       this.requirements = yaml.load(yamlText);
       return this.requirements;

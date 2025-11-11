@@ -2,6 +2,9 @@ import SystemDetector from './detector.js';
 import RequirementsValidator from './validator.js';
 import CapabilitiesModal from './modal.js';
 
+// Verificación de entorno del navegador
+const isBrowser = typeof window !== 'undefined';
+
 /**
  * Clase principal para detección de capacidades del sistema
  */
@@ -11,6 +14,7 @@ class SystemCapabilities {
     this.validator = null;
     this.modal = new CapabilitiesModal();
     this.capabilities = null;
+    this.isBrowser = isBrowser;
   }
 
   /**
@@ -24,12 +28,12 @@ class SystemCapabilities {
   }
 
   /**
-   * Verifica los requisitos mínimos desde un archivo YAML
-   * @param {string} yamlPath - Ruta al archivo YAML con los requisitos
-   * @param {boolean} showModal - Si se debe mostrar el modal en caso de fallo (default: true)
+   * Verifica los requisitos mínimos desde un archivo YAML o un objeto
+   * @param {string|Object} yamlPathOrObject - Ruta al archivo YAML o objeto con los requisitos
+   * @param {boolean} showModal - Si se debe mostrar el modal en caso de fallo (default: true, solo funciona en navegador)
    * @returns {Promise<Object>} Resultado de la validación
    */
-  async checkRequirements(yamlPath, showModal = true) {
+  async checkRequirements(yamlPathOrObject, showModal = true) {
     // Obtener capacidades si no están ya cargadas
     if (!this.capabilities) {
       this.getCapabilities();
@@ -38,14 +42,14 @@ class SystemCapabilities {
     // Crear validador
     this.validator = new RequirementsValidator(this.capabilities);
 
-    // Cargar requisitos
-    await this.validator.loadRequirements(yamlPath);
+    // Cargar requisitos (acepta tanto string como objeto)
+    await this.validator.loadRequirements(yamlPathOrObject);
 
     // Validar
     const result = this.validator.validate();
 
-    // Mostrar modal si hay fallos y showModal es true
-    if (!result.passed && showModal) {
+    // Mostrar modal si hay fallos y showModal es true (solo en navegador)
+    if (!result.passed && showModal && this.isBrowser) {
       this.modal.show(result.failures);
     }
 

@@ -1,15 +1,24 @@
+// Verificación de entorno del navegador
+const isBrowser = typeof window !== 'undefined' && typeof navigator !== 'undefined' && typeof document !== 'undefined';
+
 /**
  * Detector de capacidades del sistema del navegador
  */
 class SystemDetector {
   constructor() {
     this.capabilities = null;
+    this.isBrowser = isBrowser;
   }
 
   /**
    * Detecta todas las capacidades del sistema
    */
   detect() {
+    // Si no estamos en un navegador, retornar capacidades por defecto
+    if (!this.isBrowser) {
+      return this.getDefaultCapabilities();
+    }
+
     this.capabilities = {
       // Información del navegador
       browser: this.getBrowserInfo(),
@@ -43,6 +52,24 @@ class SystemDetector {
     };
 
     return this.capabilities;
+  }
+
+  /**
+   * Obtiene capacidades por defecto para entornos sin navegador (SSR)
+   */
+  getDefaultCapabilities() {
+    return {
+      browser: { isSSR: true },
+      device: { isSSR: true },
+      hardware: { isSSR: true },
+      network: { available: false, isSSR: true },
+      screen: { isSSR: true },
+      features: { isSSR: true },
+      storage: { isSSR: true },
+      performance: { available: false, isSSR: true },
+      sensors: { isSSR: true },
+      media: { isSSR: true }
+    };
   }
 
   /**

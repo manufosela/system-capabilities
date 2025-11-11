@@ -1,3 +1,6 @@
+// Verificación de entorno del navegador
+const isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
+
 /**
  * Modal para mostrar avisos de requisitos no cumplidos
  */
@@ -5,12 +8,19 @@ class CapabilitiesModal {
   constructor() {
     this.modal = null;
     this.overlay = null;
+    this.isBrowser = isBrowser;
   }
 
   /**
    * Muestra el modal con los fallos de validación
    */
   show(failures) {
+    // Si no estamos en un navegador, no podemos mostrar el modal
+    if (!this.isBrowser) {
+      console.warn('CapabilitiesModal: No se puede mostrar el modal en entorno SSR');
+      return;
+    }
+
     if (this.modal) {
       this.close();
     }
@@ -249,6 +259,10 @@ class CapabilitiesModal {
    * Cierra el modal
    */
   close() {
+    if (!this.isBrowser) {
+      return;
+    }
+
     if (this.overlay && this.overlay.parentNode) {
       this.overlay.parentNode.removeChild(this.overlay);
     }
