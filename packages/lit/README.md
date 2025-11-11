@@ -4,8 +4,29 @@ Componentes Lit (Web Components) para detección y validación de capacidades de
 
 ## Instalación
 
+### Via npm
+
 ```bash
 npm install @system-capabilities/lit
+```
+
+### Via CDN (para sitios estáticos/SSG)
+
+```html
+<!-- UMD Bundle (incluye todas las dependencias) -->
+<script src="https://unpkg.com/@system-capabilities/lit@1.1.0/dist/system-capabilities-lit.umd.min.js"></script>
+
+<!-- O desde jsDelivr -->
+<script src="https://cdn.jsdelivr.net/npm/@system-capabilities/lit@1.1.0/dist/system-capabilities-lit.umd.min.js"></script>
+
+<!-- Usar los componentes -->
+<script>
+  // Los componentes están automáticamente registrados
+  const status = document.createElement('system-status');
+  status.setAttribute('size', 'large');
+  status.setAttribute('autoCheck', '');
+  document.body.appendChild(status);
+</script>
 ```
 
 ## Componentes

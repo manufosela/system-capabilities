@@ -4,8 +4,38 @@ Componentes React y hooks para detección y validación de capacidades del siste
 
 ## Instalación
 
+### Via npm
+
 ```bash
 npm install @system-capabilities/react
+```
+
+### Via CDN (para sitios estáticos con React)
+
+```html
+<!-- Primero cargar React y ReactDOM -->
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<!-- Luego el bundle UMD -->
+<script src="https://unpkg.com/@system-capabilities/react@1.1.0/dist/system-capabilities-react.umd.min.js"></script>
+
+<!-- O desde jsDelivr -->
+<script src="https://cdn.jsdelivr.net/npm/@system-capabilities/react@1.1.0/dist/system-capabilities-react.umd.min.js"></script>
+
+<!-- Usar los componentes -->
+<div id="root"></div>
+<script>
+  const { SystemStatus, SystemChecker } = SystemCapabilitiesReact;
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(
+    React.createElement(SystemStatus, {
+      requirements: { features: { webGL: true } },
+      autoCheck: true,
+      size: 'large'
+    })
+  );
+</script>
 ```
 
 ## Componentes
