@@ -1,6 +1,6 @@
 {
   "name": "@system-capabilities/lit",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Lit components for system-capabilities detection and validation",
   "main": "dist/index.js",
   "module": "dist/index.js",

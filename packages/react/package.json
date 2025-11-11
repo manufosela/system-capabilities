@@ -1,6 +1,6 @@
 {
   "name": "@system-capabilities/react",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "React components for system-capabilities detection and validation",
   "main": "dist/index.js",
   "module": "dist/index.js",

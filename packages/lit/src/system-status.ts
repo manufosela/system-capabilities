@@ -137,33 +137,64 @@ export class SystemStatus extends LitElement {
 
     .tooltip {
       position: absolute;
-      bottom: 100%;
+      top: 100%;
       left: 50%;
-      transform: translateX(-50%) translateY(-8px);
-      background: rgba(0, 0, 0, 0.9);
+      transform: translateX(-50%) translateY(8px);
+      background: rgba(0, 0, 0, 0.95);
       color: white;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      white-space: nowrap;
+      padding: 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      white-space: normal;
+      min-width: 280px;
+      max-width: 400px;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s;
       z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
-    .status-circle:hover .tooltip {
+    .tooltip.visible {
       opacity: 1;
+      pointer-events: auto;
     }
 
-    .tooltip::after {
+    .tooltip::before {
       content: '';
       position: absolute;
-      top: 100%;
+      bottom: 100%;
       left: 50%;
       transform: translateX(-50%);
-      border: 4px solid transparent;
-      border-top-color: rgba(0, 0, 0, 0.9);
+      border: 6px solid transparent;
+      border-bottom-color: rgba(0, 0, 0, 0.95);
+    }
+
+    .tooltip-header {
+      font-weight: bold;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .tooltip-section {
+      margin: 8px 0;
+    }
+
+    .tooltip-label {
+      font-size: 11px;
+      opacity: 0.7;
+      margin-bottom: 4px;
+    }
+
+    .tooltip-value {
+      font-weight: 500;
+    }
+
+    .tooltip-failure {
+      color: #ff6b6b;
+      margin-top: 4px;
+      font-size: 12px;
     }
   `;
 
@@ -188,20 +219,22 @@ export class SystemStatus extends LitElement {
   @state()
   private failures: any[] = [];
 
-  private capabilities = new SystemCapabilities();
+  @state()
+  private tooltipVisible = false;
 
-  connectedCallback() {
-    super.connectedCallback();
-    if (this.autoCheck) {
-      this.checkSystem();
-    }
-  }
+  @state()
+  private systemInfo: any = null;
+
+  private capabilities = new SystemCapabilities();
 
   async checkSystem() {
     this.status = 'checking';
     this.message = 'Verificando...';
 
     try {
+      // Obtener información del sistema
+      this.systemInfo = this.capabilities.getSummary();
+
       const result = await this.capabilities.checkRequirements(this.requirements, false);
       this.failures = result.failures;
 
@@ -227,7 +260,8 @@ export class SystemStatus extends LitElement {
         detail: {
           status: this.status,
           failures: this.failures,
-          message: this.message
+          message: this.message,
+          systemInfo: this.systemInfo
         },
         bubbles: true,
         composed: true
@@ -239,16 +273,39 @@ export class SystemStatus extends LitElement {
     }
   }
 
-  private handleClick() {
+  private handleClick(e: Event) {
+    e.stopPropagation();
+    this.tooltipVisible = !this.tooltipVisible;
+
     this.dispatchEvent(new CustomEvent('click', {
       detail: {
         status: this.status,
         failures: this.failures,
-        capabilities: this.capabilities.getCapabilities()
+        capabilities: this.capabilities.getCapabilities(),
+        systemInfo: this.systemInfo
       },
       bubbles: true,
       composed: true
     }));
+  }
+
+  private handleClickOutside = (e: Event) => {
+    if (!this.contains(e.target as Node)) {
+      this.tooltipVisible = false;
+    }
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (this.autoCheck) {
+      this.checkSystem();
+    }
+    document.addEventListener('click', this.handleClickOutside);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    document.removeEventListener('click', this.handleClickOutside);
   }
 
   private getIcon() {
@@ -266,6 +323,60 @@ export class SystemStatus extends LitElement {
     }
   }
 
+  private renderTooltipContent() {
+    if (!this.systemInfo) return '';
+
+    return html`
+      <div class="tooltip-header">${this.message}</div>
+
+      <div class="tooltip-section">
+        <div class="tooltip-label">Sistema</div>
+        <div class="tooltip-value">
+          ${this.systemInfo.browser.platform} - ${this.systemInfo.browser.online ? 'Online' : 'Offline'}
+        </div>
+      </div>
+
+      <div class="tooltip-section">
+        <div class="tooltip-label">Hardware</div>
+        <div class="tooltip-value">
+          ${this.systemInfo.device.memory || 'N/A'}GB RAM ·
+          ${this.systemInfo.device.cores || 'N/A'} cores ·
+          ${this.systemInfo.device.touch ? 'Touch' : 'No touch'}
+        </div>
+      </div>
+
+      <div class="tooltip-section">
+        <div class="tooltip-label">Pantalla</div>
+        <div class="tooltip-value">
+          ${this.systemInfo.screen.resolution} ·
+          ${this.systemInfo.screen.pixelRatio}x DPR
+        </div>
+      </div>
+
+      ${this.systemInfo.network.available ? html`
+        <div class="tooltip-section">
+          <div class="tooltip-label">Red</div>
+          <div class="tooltip-value">
+            ${this.systemInfo.network.type} ·
+            ${this.systemInfo.network.downlink}Mbps
+          </div>
+        </div>
+      ` : ''}
+
+      ${this.failures.length > 0 ? html`
+        <div class="tooltip-section">
+          <div class="tooltip-label">Problemas detectados</div>
+          ${this.failures.slice(0, 3).map(f => html`
+            <div class="tooltip-failure">✗ ${f.message}</div>
+          `)}
+          ${this.failures.length > 3 ? html`
+            <div class="tooltip-failure">... y ${this.failures.length - 3} más</div>
+          ` : ''}
+        </div>
+      ` : ''}
+    `;
+  }
+
   render() {
     return html`
       <div
@@ -277,7 +388,9 @@ export class SystemStatus extends LitElement {
       >
         <span class="icon">${this.getIcon()}</span>
         ${this.showTooltip ? html`
-          <div class="tooltip">${this.message}</div>
+          <div class="tooltip ${this.tooltipVisible ? 'visible' : ''}">
+            ${this.renderTooltipContent()}
+          </div>
         ` : ''}
       </div>
     `;
