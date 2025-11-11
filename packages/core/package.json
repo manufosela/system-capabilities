@@ -1,0 +1,56 @@
+{
+  "name": "system-capabilities",
+  "version": "2.0.1",
+  "description": "Detecta las capacidades del sistema del navegador y valida requisitos mínimos. Compatible con SSR/SSG (Astro, Next.js, Nuxt, SvelteKit)",
+  "main": "dist/system-capabilities.cjs",
+  "module": "dist/system-capabilities.mjs",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/system-capabilities.mjs",
+      "require": "./dist/system-capabilities.cjs",
+      "default": "./dist/system-capabilities.mjs"
+    }
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "keywords": [
+    "browser",
+    "capabilities",
+    "detection",
+    "system",
+    "hardware",
+    "features",
+    "ssr",
+    "ssg",
+    "astro",
+    "nextjs",
+    "nuxt",
+    "sveltekit",
+    "static-site",
+    "webgl",
+    "device-detection"
+  ],
+  "author": "manufosela",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/manufosela/system-capabilities.git"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "rollup": "^4.9.6"
+  }
+}

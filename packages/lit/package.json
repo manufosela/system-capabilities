@@ -1,0 +1,42 @@
+{
+  "name": "@system-capabilities/lit",
+  "version": "1.0.0",
+  "description": "Lit components for system-capabilities detection and validation",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js",
+    "./system-status": "./dist/system-status.js",
+    "./system-checker": "./dist/system-checker.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "keywords": [
+    "lit",
+    "web-components",
+    "system-capabilities",
+    "browser-detection",
+    "lit-element"
+  ],
+  "author": "manufosela",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/manufosela/system-capabilities.git",
+    "directory": "packages/lit"
+  },
+  "dependencies": {
+    "lit": "^3.2.0",
+    "system-capabilities": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

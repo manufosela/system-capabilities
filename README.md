@@ -1,356 +1,243 @@
-# System Capabilities
+# System Capabilities Monorepo
 
-Paquete npm para detectar las capacidades del sistema del navegador y validar requisitos mínimos. **Compatible con SSR/SSG** (Astro, Next.js, Nuxt, SvelteKit, etc).
+Monorepo para detección de capacidades del sistema del navegador y componentes UI para validación de requisitos.
 
-## Características
+## Paquetes
 
-- ✅ **SSR/SSG Safe**: Compatible con generadores de sitios estáticos y SSR
-- 🌐 Detección de capacidades del navegador
-- 📱 Información de dispositivo móvil/escritorio
-- 💾 Capacidades de hardware y almacenamiento
-- 🎨 Información de pantalla y viewport
-- 🔌 Detección de APIs disponibles
-- ⚡ Validación de requisitos mínimos
-- 🎯 Modal automático para avisar de requisitos no cumplidos
+Este monorepo contiene tres paquetes:
 
-## Instalación
+### 📦 [system-capabilities](./packages/core)
+
+[![npm version](https://img.shields.io/npm/v/system-capabilities.svg)](https://www.npmjs.com/package/system-capabilities)
+
+Librería core para detección de capacidades del navegador y validación de requisitos. Compatible con SSR/SSG (Astro, Next.js, Nuxt, SvelteKit).
 
 ```bash
 npm install system-capabilities
 ```
 
-## Uso Básico
+[Ver documentación completa →](./packages/core/README.md)
 
-### En el navegador (client-side)
+### 🎨 [@system-capabilities/lit](./packages/lit)
+
+Componentes Web Components (Lit) para mostrar el estado de compatibilidad del sistema.
+
+```bash
+npm install @system-capabilities/lit
+```
+
+**Componentes:**
+- `<system-status>` - Círculo de estado con colores
+- `<system-checker>` - Modal completo con detalles
+
+[Ver documentación completa →](./packages/lit/README.md)
+
+### ⚛️ [@system-capabilities/react](./packages/react)
+
+Componentes React y hooks para detección y validación.
+
+```bash
+npm install @system-capabilities/react
+```
+
+**Componentes y Hooks:**
+- `<SystemStatus />` - Círculo de estado
+- `<SystemChecker />` - Modal completo
+- `useSystemCapabilities()` - Hook para detección
+
+[Ver documentación completa →](./packages/react/README.md)
+
+## Inicio Rápido
+
+### Usando la librería core
 
 ```javascript
 import SystemCapabilities from 'system-capabilities';
 
-// Detectar capacidades
-const capabilities = new SystemCapabilities();
-const info = capabilities.getCapabilities();
+const caps = new SystemCapabilities();
+const info = caps.getCapabilities();
 
-console.log(info);
-```
-
-### Validar requisitos
-
-```javascript
-// Opción 1: Desde archivo YAML (solo client-side)
-await capabilities.checkRequirements('/requirements.yaml');
-
-// Opción 2: Pasar objeto directamente (funciona en SSR)
+// Validar requisitos
 const requirements = {
-  features: {
-    webGL: true,
-    localStorage: true
-  },
-  device: {
-    minMemory: 4,
-    minCores: 2
-  }
+  features: { webGL: true },
+  device: { minMemory: 4 }
 };
 
-const result = await capabilities.checkRequirements(requirements, false);
-if (!result.passed) {
-  console.log('Requisitos no cumplidos:', result.failures);
+const result = await caps.checkRequirements(requirements);
+console.log(result.passed);  // true/false
+```
+
+### Usando componentes Lit
+
+```html
+<script type="module">
+  import '@system-capabilities/lit';
+</script>
+
+<system-status
+  size="medium"
+  autoCheck
+></system-status>
+
+<system-checker
+  autoCheck
+  showOnFail
+></system-checker>
+```
+
+### Usando componentes React
+
+```tsx
+import { SystemStatus, SystemChecker, useSystemCapabilities } from '@system-capabilities/react';
+
+function App() {
+  return (
+    <>
+      <SystemStatus
+        requirements={{ features: { webGL: true } }}
+        autoCheck
+      />
+
+      <SystemChecker
+        requirements={{ features: { webGL: true } }}
+        autoCheck
+        showOnFail
+      />
+    </>
+  );
 }
 ```
 
-## Uso en SSG/SSR (Astro, Next.js, etc)
+## Características
+
+✅ **SSR/SSG Safe** - Compatible con generadores de sitios estáticos
+✅ **Framework Agnostic** - Core funciona en cualquier entorno
+✅ **Web Components** - Componentes Lit reutilizables en cualquier framework
+✅ **React Support** - Componentes y hooks nativos de React
+✅ **TypeScript** - Tipado completo incluido
+✅ **Múltiples formatos** - ESM, CommonJS, UMD
+✅ **Tree-shakeable** - Solo importa lo que necesitas
+
+## Detecciones disponibles
+
+- 🌐 **Navegador**: UserAgent, idioma, plataforma, cookies, online
+- 📱 **Dispositivo**: Memoria, CPU cores, táctil, móvil/escritorio
+- 💻 **Hardware**: Núcleos CPU, RAM, batería
+- 🌐 **Red**: Tipo de conexión, velocidad, latencia
+- 🖥️ **Pantalla**: Resolución, viewport, pixel ratio, orientación
+- 🔌 **Features**: WebGL, WebRTC, Service Workers, IndexedDB, etc.
+- 💾 **Almacenamiento**: localStorage, sessionStorage, cuota
+- 🎬 **Media**: Codecs audio/video, MediaDevices, WebRTC
+- 📊 **Performance**: Timing, memoria JS
+- 🎯 **Sensores**: Acelerómetro, giroscopio, magnetómetro
+
+## Uso en diferentes frameworks
 
 ### Astro
 
 ```astro
 ---
-// Este código se ejecuta en el servidor (SSR)
-// El paquete no fallará durante el build
+// Frontmatter (server)
 ---
 
 <script>
-  // Este código se ejecuta en el cliente
-  import SystemCapabilities from 'system-capabilities';
-
-  const caps = new SystemCapabilities();
-  const info = caps.getCapabilities();
-
-  // Validar requisitos
-  const requirements = {
-    features: {
-      webGL: true,
-      localStorage: true
-    }
-  };
-
-  const result = await caps.checkRequirements(requirements);
-  if (!result.passed) {
-    console.warn('Navegador no cumple requisitos', result.failures);
-  }
+  // Client-side
+  import '@system-capabilities/lit';
 </script>
+
+<system-checker autoCheck showOnFail />
 ```
 
-### Next.js (App Router)
+### Next.js
 
 ```tsx
-'use client'; // Importante: debe ejecutarse en el cliente
+'use client';
 
-import { useEffect, useState } from 'react';
-import SystemCapabilities from 'system-capabilities';
+import { SystemChecker } from '@system-capabilities/react';
 
-export default function CapabilitiesChecker() {
-  const [caps, setCaps] = useState(null);
-
-  useEffect(() => {
-    const detector = new SystemCapabilities();
-    const capabilities = detector.getCapabilities();
-    setCaps(capabilities);
-
-    // Validar requisitos
-    const requirements = {
-      features: {
-        webGL: true
-      }
-    };
-
-    detector.checkRequirements(requirements).then(result => {
-      if (!result.passed) {
-        console.warn('Requisitos no cumplidos');
-      }
-    });
-  }, []);
-
-  if (!caps) return <div>Detectando capacidades...</div>;
-
-  return (
-    <div>
-      <h2>Navegador: {caps.browser.userAgent}</h2>
-      <p>Memoria: {caps.device.deviceMemory}GB</p>
-    </div>
-  );
+export default function Home() {
+  return <SystemChecker autoCheck showOnFail />;
 }
+```
+
+### Vue/Nuxt
+
+```vue
+<template>
+  <system-status autoCheck />
+</template>
+
+<script setup>
+import '@system-capabilities/lit';
+</script>
 ```
 
 ### SvelteKit
 
 ```svelte
 <script>
-  import { onMount } from 'svelte';
-  import SystemCapabilities from 'system-capabilities';
-
-  let capabilities = null;
-
-  onMount(() => {
-    // Se ejecuta solo en el cliente
-    const detector = new SystemCapabilities();
-    capabilities = detector.getCapabilities();
-  });
+  import '@system-capabilities/lit';
 </script>
 
-{#if capabilities}
-  <div>
-    <p>WebGL: {capabilities.features.webGL ? '✓' : '✗'}</p>
-    <p>Memoria: {capabilities.device.deviceMemory}GB</p>
-  </div>
-{/if}
+<system-status autoCheck />
 ```
 
-### Nuxt 3
+## Desarrollo
 
-```vue
-<template>
-  <div v-if="capabilities">
-    <p>WebGL: {{ capabilities.features.webGL ? '✓' : '✗' }}</p>
-  </div>
-</template>
+### Setup
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import SystemCapabilities from 'system-capabilities';
+```bash
+# Instalar dependencias
+npm install
 
-const capabilities = ref(null);
+# Build todos los paquetes
+npm run build
 
-onMounted(() => {
-  // Se ejecuta solo en el cliente
-  const detector = new SystemCapabilities();
-  capabilities.value = detector.getCapabilities();
-});
-</script>
+# Build paquete específico
+npm run build:core
+npm run build:lit
+npm run build:react
 ```
 
-## API
+### Estructura del proyecto
 
-### Constructor
-
-```javascript
-const capabilities = new SystemCapabilities();
+```
+system-capabilities/
+├── packages/
+│   ├── core/              # system-capabilities
+│   │   ├── src/
+│   │   ├── dist/
+│   │   └── package.json
+│   ├── lit/               # @system-capabilities/lit
+│   │   ├── src/
+│   │   ├── dist/
+│   │   └── package.json
+│   └── react/             # @system-capabilities/react
+│       ├── src/
+│       ├── dist/
+│       └── package.json
+├── package.json           # Root workspace
+└── README.md
 ```
 
-### Métodos principales
+## Publicación
 
-#### `getCapabilities()`
+Cada paquete se publica independientemente:
 
-Retorna un objeto con todas las capacidades detectadas del sistema:
+```bash
+# Publicar core
+cd packages/core && npm publish
 
-```javascript
-const info = capabilities.getCapabilities();
+# Publicar Lit
+cd packages/lit && npm publish --access public
 
-// Estructura:
-{
-  browser: { userAgent, language, platform, ... },
-  device: { mobile, deviceMemory, hardwareConcurrency, ... },
-  hardware: { cores, memory, ... },
-  network: { effectiveType, downlink, rtt, ... },
-  screen: { width, height, devicePixelRatio, ... },
-  features: { webGL, localStorage, serviceWorker, ... },
-  storage: { localStorage, sessionStorage, indexedDB, ... },
-  performance: { timing, memory, ... },
-  sensors: { accelerometer, gyroscope, ... },
-  media: { audioCodecs, videoCodecs, ... }
-}
+# Publicar React
+cd packages/react && npm publish --access public
 ```
 
-**Nota SSR**: En entornos SSR, retorna un objeto con `isSSR: true` en cada categoría.
+## Ejemplos
 
-#### `checkRequirements(yamlPathOrObject, showModal = true)`
-
-Valida los requisitos mínimos del sistema:
-
-```javascript
-// Con objeto (recomendado para SSG/SSR)
-const requirements = {
-  features: {
-    webGL: true,
-    localStorage: true
-  },
-  device: {
-    minMemory: 4,
-    minCores: 2
-  }
-};
-
-const result = await capabilities.checkRequirements(requirements, false);
-
-// result:
-{
-  passed: false,
-  failures: [
-    {
-      category: 'device',
-      property: 'deviceMemory',
-      required: 4,
-      actual: 2,
-      message: 'Se requieren al menos 4GB de memoria...'
-    }
-  ]
-}
-```
-
-**Parámetros:**
-- `yamlPathOrObject`: String (ruta a YAML) u Object (requisitos)
-- `showModal`: Boolean - Si mostrar modal automático en caso de fallo (solo en navegador)
-
-**Nota**: En SSR, solo puedes usar objetos. No se puede cargar desde archivo YAML.
-
-#### `getSummary()`
-
-Obtiene un resumen de las capacidades más importantes:
-
-```javascript
-const summary = capabilities.getSummary();
-
-// Retorna:
-{
-  browser: { userAgent, platform, language, online },
-  device: { mobile, memory, cores, touch },
-  screen: { resolution, viewport, pixelRatio },
-  network: { type, downlink, rtt }
-}
-```
-
-#### `getCategory(category)`
-
-Obtiene información de una categoría específica:
-
-```javascript
-const browserInfo = capabilities.getCategory('browser');
-const screenInfo = capabilities.getCategory('screen');
-```
-
-Categorías disponibles: `browser`, `device`, `hardware`, `network`, `screen`, `features`, `storage`, `performance`, `sensors`, `media`
-
-#### `hasFeature(feature)`
-
-Verifica si una característica específica está soportada:
-
-```javascript
-if (capabilities.hasFeature('webGL')) {
-  // WebGL está disponible
-}
-
-if (capabilities.hasFeature('serviceWorker')) {
-  // Service Workers disponibles
-}
-```
-
-#### `showModal(failures)`
-
-Muestra manualmente el modal con fallos específicos:
-
-```javascript
-capabilities.showModal([
-  {
-    category: 'features',
-    property: 'webGL',
-    required: true,
-    actual: false,
-    message: 'WebGL no está disponible'
-  }
-]);
-```
-
-**Nota**: Solo funciona en navegador, no en SSR.
-
-#### `closeModal()`
-
-Cierra el modal de requisitos:
-
-```javascript
-capabilities.closeModal();
-```
-
-## Formato de requisitos YAML
-
-```yaml
-# requirements.yaml
-features:
-  webGL: true
-  localStorage: true
-  serviceWorker: true
-
-device:
-  minMemory: 4      # GB
-  minCores: 2       # Núcleos CPU
-  mobile: false     # true/false
-
-screen:
-  minWidth: 1024    # pixels
-  minHeight: 768
-  minDevicePixelRatio: 1
-
-network:
-  minDownlink: 1.5  # Mbps
-  maxRTT: 300       # ms
-```
-
-## Formatos de distribución
-
-El paquete se distribuye en múltiples formatos:
-
-- **ESM** (`dist/system-capabilities.mjs`): Para bundlers modernos (Vite, Webpack 5+, etc)
-- **CommonJS** (`dist/system-capabilities.cjs`): Para Node.js y compatibilidad
-- **UMD** (`dist/system-capabilities.umd.js`): Para uso directo en `<script>` tags
-
-Los bundlers modernos seleccionarán automáticamente el formato correcto gracias al campo `exports` en `package.json`.
+Ver el directorio `example/` para ejemplos completos de uso con diferentes frameworks.
 
 ## Compatibilidad
 
@@ -358,8 +245,19 @@ Los bundlers modernos seleccionarán automáticamente el formato correcto gracia
 - ✅ Navegadores móviles (iOS Safari, Chrome Mobile)
 - ✅ SSR/SSG (Next.js, Astro, Nuxt, SvelteKit, etc)
 - ✅ ES Modules y CommonJS
-- ✅ TypeScript (tipos incluidos en próximas versiones)
+- ✅ TypeScript
 
 ## Licencia
 
-MIT
+MIT © manufosela
+
+## Enlaces
+
+- [GitHub Repository](https://github.com/manufosela/system-capabilities)
+- [npm - system-capabilities](https://www.npmjs.com/package/system-capabilities)
+- [npm - @system-capabilities/lit](https://www.npmjs.com/package/@system-capabilities/lit)
+- [npm - @system-capabilities/react](https://www.npmjs.com/package/@system-capabilities/react)
+
+## Contribuir
+
+Las contribuciones son bienvenidas. Por favor abre un issue o PR en GitHub.
